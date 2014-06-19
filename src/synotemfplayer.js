@@ -301,6 +301,19 @@
                 return $(this).data('smfplayer').mfjson;
             };
 
+            this.setmf = function (frag) {
+                frag = (frag.indexOf('#') == -1) ? '#' + frag : frag;
+                window.frag = frag;
+                var newProp = MediaFragments.parse(frag);
+                $.extend($(this).data('smfplayer').mfjson, newProp);
+
+                var data = $(this).data('smfplayer');
+                if (data.settings.temporalHighlight) {
+                    $(self.getMeplayer().media).one('timeupdate', self.highlight);
+                }
+                return this;
+            };
+
             //get the original mejs player
             this.getMeplayer = function () {
                 return $(this).data('smfplayer').smfplayer;
