@@ -11,6 +11,7 @@
         mfAlwaysEnabled: false, //the media fragment is always enabled, i.e. you can only play the media fragment
         spatialEnabled: true, //spatial dimension of the media fragment is enabled
         spatialStyle: {}, //a json object to specify the style of the outline of the spatial area
+        spatialOverlay: false, //spatial fragment overflow is not partially overshadow as default
         temporalHighlight: false, //temporal fragments are not highlighted as default
         autoStart: true, //auto start playing after initialising the player
         //xywhoverlay: jquery object of a div to identify xywh area
@@ -94,15 +95,62 @@
                 if ($.isEmptyObject(xywh) || data.settings.spatialEnabled !== true)
                     return;
 
-                var spatial_div;
+                var spatial_div, overlay_container;
                 if (data.settings.xywhoverlay === undefined) //the overlay hasn't been created
                 {
                     this.addClass('smfplayer-container');
-                    //var cssStr = "top:"+x+";left:"+y+";width:"+w+";height:"+h+";";
-                    spatial_div = $("<div/>");
-                    spatial_div.css(data.settings.spatialStyle);
-                    spatial_div.addClass('smfplayer-overlay').appendTo(this);
+                    var mejsCont = this.find('.mejs-container');
 
+                    overlay_container = $('<div>').addClass('overlay-container');
+                    overlay_container.height(data.settings.height).width(data.settings.width).appendTo(mejsCont);
+                    spatial_div = $("<div/>").css(data.settings.spatialStyle).addClass('smfplayer-overlay').appendTo(overlay_container);
+
+                    if (data.settings.spatialOverlay) {
+                        var $topdiv = $('<div>').addClass('smfplayer-overlay-dark'),
+                            $leftdiv = $topdiv.clone(),
+                            $rightdiv = $topdiv.clone(),
+                            $bottomdiv = $topdiv.clone();
+
+                        $topdiv.css({
+                            top: 0,
+                            left: 0,
+                            height: xywh.y,
+                            width: "100%"
+                        });
+
+                        $leftdiv.css({
+                            top: xywh.y + 'px',
+                            left: 0,
+                            height: xywh.h,
+                            width: xywh.x
+                        });
+
+                        $rightdiv.css({
+                            top: xywh.y + "px",
+                            right: 0,
+                            height: xywh.h,
+                            width: (data.settings.width) - (parseInt(xywh.x) + parseInt(xywh.w))
+                        });
+
+                        $bottomdiv.css({
+                            bottom: 0,
+                            left: 0,
+                            height: (data.settings.height) - (parseInt(xywh.y) + parseInt(xywh.h)),
+                            width: "100%"
+                        });
+                        overlay_container.append($topdiv, $leftdiv, $rightdiv, $bottomdiv);
+                        spatial_div = spatial_div.add(overlay_container);
+                    }
+
+                    var super_this = this;
+                    spatial_div.click(function () {
+                        var player = super_this.getMeplayer();
+                        if (player.media.paused) {
+                            player.play();
+                        } else {
+                            player.pause();
+                        }
+                    });
                     data.settings.xywhoverlay = spatial_div;
                 }
                 else {
@@ -112,12 +160,12 @@
                 //console.log(xywh);
 
                 var unit = xywh.unit;
-                x = xywh.x,
+                var x = xywh.x,
                     y = xywh.y,
                     w = xywh.w,
                     h = xywh.h;
 
-                //unit is 'pixal' or 'percent'
+                //unit is 'pixel' or 'percent'
                 if (unit === 'percent') {
                     //var wratio = data.settings.width/data.settings.originalWidth;
                     //var hratio = data.settings.height/data.settings.originalHeight;
@@ -128,7 +176,7 @@
                     h = Math.floor((h / 100) * data.settings.height);
                 }
 
-                spatial_div.css({'width': w, 'height': h, 'top': y + 'px', 'left': x + 'px'});
+                spatial_div.filter('.smfplayer-overlay').css({'width': w, 'height': h, 'top': y + 'px', 'left': x + 'px'});
                 spatial_div.show();
             };
 
