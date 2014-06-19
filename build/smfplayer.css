@@ -13,4 +13,42 @@
 	-moz-box-shadow: 1px 1px 5px #999;
 	-webkit-box-shadow: 1px 1px 5px #999;
         box-shadow: 1px 1px 5px #999;
+    pointer-events: none;
+}
+
+.smfplayer-overlay-dark {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    background: #000;
+    background: rgba(0, 0, 0, 0.8);
+    -webkit-transition: opacity 100ms ease-out;
+    -moz-transition: opacity 100ms ease-out;
+    -o-transition: opacity 100ms ease-out;
+    transition: opacity 100ms ease-out;
+}
+
+.smfplayer-overlay, .smfplayer-overlay-dark {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.mejs-container .mejs-controls{
+    z-index: 4;
+}
+.mejs-container .mejs-controls .mfHighlight {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    height: 100%;
+    background-color: #ff9b00;
+    z-index: 5;
+    opacity: 0.8;
+    pointer-events: none;
+    min-width: 1px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -ms-border-radius: 2px;
+    -o-border-radius: 2px;
+    border-radius: 2px;
 }
