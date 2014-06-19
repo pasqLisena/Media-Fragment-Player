@@ -317,17 +317,17 @@
             //get the original mejs player
             this.getMeplayer = function () {
                 return $(this).data('smfplayer').smfplayer;
-            }
+            };
 
             //get the setting options
             this.getOptions = function () {
                 return $(this).data('smfplayer').settings;
-            }
+            };
 
             //get the video/audio dom object
             this.getDomObject = function () {
                 return $(this).data('smfplayer').smfplayer.domNode;
-            }
+            };
 
             /*-----------Public attributes declaration ends----------------*/
 
@@ -523,13 +523,8 @@
                     if (VERBOSE)
                         console.log(videosrc);
 
-                    var mm;
-                    if (settings.isVideo === false) {
-                        mm = $("<audio/>").prop("width", settings.width).prop("height", settings.height).prop('preload', 'auto').appendTo($this);
-                    }
-                    else {
-                        mm = $("<video/>").prop("width", settings.width).prop("height", settings.height).prop('preload', 'auto').appendTo($this);
-                    }
+                    var mm = settings.isVideo ? $("<video/>") : $("<audio/>");
+                    mm.prop("width", settings.width).prop("height", settings.height).prop('preload', 'auto').appendTo($this);
                     var mmSource = $("<source/>").prop("src", videosrc).appendTo(mm);
 
                     //Decide the type of the video or audio
@@ -546,7 +541,7 @@
                         var jqURL = $.url(settings.mfURI);
                         var file = jqURL.attr('file').toLowerCase();
 
-                        var parts = file.split('.')
+                        var parts = file.split('.');
                         //if no file extension
                         if (parts.length > 1) {
                             var file_extension = parts[parts.length - 1].toLowerCase();
