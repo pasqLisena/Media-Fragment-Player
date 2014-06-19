@@ -11,6 +11,7 @@
         mfAlwaysEnabled: false, //the media fragment is always enabled, i.e. you can only play the media fragment
         spatialEnabled: true, //spatial dimension of the media fragment is enabled
         spatialStyle: {}, //a json object to specify the style of the outline of the spatial area
+        temporalHighlight: false, //temporal fragments are not highlighted as default
         autoStart: true, //auto start playing after initialising the player
         //xywhoverlay: jquery object of a div to identify xywh area
         tracks: []//a JSON array like {srclang:"en", kind:"subtitles", type:"text/vtt", src:"somefile.vtt"} or {srclang:"zh", kind:"chapter", type:"text/plain", src:"somefile.srt"}
@@ -129,6 +130,36 @@
 
                 spatial_div.css({'width': w, 'height': h, 'top': y + 'px', 'left': x + 'px'});
                 spatial_div.show();
+            };
+
+            this.highlight = function () {
+                var mediaDuration = self.getDuration();
+                if (mediaDuration == 0) {
+                    //retry in 500ms
+                    setTimeout(function () {
+                        return self.highlight;
+                    }, 500);
+                }
+
+                var $timeline_container = $(".mejs-time-total", self);
+                var $highligthedMF = $('.mfHighlight', $timeline_container);
+
+                if (!$highligthedMF.length > 0) {
+                    $highligthedMF = $("<span>").addClass('mfHighlight');
+                }
+
+                var MEt = self.getMFJson().hash.t || self.getMFJson().query.t;
+                if (typeof MEt != 'undefined') {
+
+                    var startMS = MEt[0].startNormalized * 1000; //media frame starting point in milliseconds
+                    var endMS = MEt[0].endNormalized * 1000; //media frame ending point in milliseconds
+                    endMS = (endMS > 0) ? endMS : mediaDuration;
+
+                    $highligthedMF.css("left", (startMS * 100 / mediaDuration) + '%')
+                        .width(((endMS - startMS) * 100 / mediaDuration) + '%')
+                        .appendTo($timeline_container).show();
+                }
+                return this;
             };
 
             this.hidexywh = function () {
@@ -366,6 +397,10 @@
                             }
 
                         }, false);
+
+                        if (settings.temporalHighlight) {
+                            $(mediaElement).one('timeupdate', self.highlight);
+                        }
 
                         mediaElement.addEventListener('play', function (e) {
 
