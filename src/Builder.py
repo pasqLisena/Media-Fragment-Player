@@ -1,6 +1,12 @@
+#!/usr/bin/env python
+
 import sys
 import os
 import shutil
+import re
+
+def remove_console(text):
+	return re.sub('console.(log|debug)\((.*)\);?', '', text)
 
 me_filename = 'mediaelement'
 mep_filename = 'mediaelementplayer'
@@ -18,12 +24,17 @@ me_files.append('me-plugindetector.js')
 me_files.append('me-featuredetection.js')
 me_files.append('me-mediaelements.js')
 me_files.append('me-shim.js')
+me_files.append('me-i18n.js')
+me_files.append('me-i18n-locale-de.js')
+me_files.append('me-i18n-locale-zh.js')
 
 code = ''
 
 for item in me_files:
 	src_file = open('mediaelementjs/js/' + item,'r')
 	code += src_file.read() + "\n"
+
+code = remove_console(code)
 
 tmp_file = open('../build/' + me_filename + '.js','w')
 tmp_file.write(code)
@@ -43,6 +54,7 @@ mep_files.append('mep-feature-volume.js')
 mep_files.append('mep-feature-fullscreen.js')
 mep_files.append('mep-feature-tracks.js')
 mep_files.append('mep-feature-contextmenu.js')
+mep_files.append('mep-feature-postroll.js')
 # mep_files.append('mep-feature-sourcechooser.js')
 
 code = ''
@@ -50,6 +62,8 @@ code = ''
 for item in mep_files:
         src_file = open('mediaelementjs/js/' + item,'r')
         code += src_file.read() + "\n"
+
+code = remove_console(code)
 
 tmp_file = open('../build/' + mep_filename + '.js','w')
 tmp_file.write(code)
@@ -139,11 +153,9 @@ tmp_file.close()
 
 # MINIFY CSS
 print('Minifying CSS')
-code=''
 src_file = open('mediaelementjs/css/mediaelementplayer.css','r')
-code+=src_file.read()+"\n"
 tmp_file = open('../build/mediaelementplayer.css','w')
-tmp_file.write(code)
+tmp_file.write(src_file.read())
 tmp_file.close()
 os.system("java -jar yuicompressor-2.4.2.jar ../build/mediaelementplayer.css -o ../build/mediaelementplayer.min.css --charset utf-8 -v")
 
@@ -153,7 +165,9 @@ shutil.copy2('css/smfplayer.css','../build/smfplayer.css')
 #COPY skin files
 print('Copying Skin Files')
 shutil.copy2('mediaelementjs/css/controls.png','../build/controls.png')
+shutil.copy2('mediaelementjs/css/controls.svg','../build/controls.svg')
 shutil.copy2('mediaelementjs/css/bigplay.png','../build/bigplay.png')
+shutil.copy2('mediaelementjs/css/bigplay.svg','../build/bigplay.svg')
 shutil.copy2('mediaelementjs/css/loading.gif','../build/loading.gif')
 
 shutil.copy2('mediaelementjs/css/mejs-skins.css','../build/mejs-skins.css')

@@ -12,7 +12,7 @@
 
 			player.sourcechooserButton =
 				$('<div class="mejs-button mejs-sourcechooser-button">'+
-					'<button type="button" aria-controls="' + t.id + '" title="' + t.options.sourcechooserText + '"></button>'+
+					'<button type="button" aria-controls="' + t.id + '" title="' + t.options.sourcechooserText + '" aria-label="' + t.options.sourcechooserText + '"></button>'+
 					'<div class="mejs-sourcechooser-selector">'+
 						'<ul>'+
 						'</ul>'+
@@ -29,21 +29,27 @@
 
 					// handle clicks to the language radio buttons
 					.delegate('input[type=radio]', 'click', function() {
-						src = this.value;
+						var src = this.value;
 
 						if (media.currentSrc != src) {
 							currentTime = media.currentTime;
 							paused = media.paused;
 							media.setSrc(src);
-							if (!paused) {
-								media.play();
-							}
+							media.load();
+							media.addEventListener('loadedmetadata', function(e){
+				                this.currentTime = currentTime;
+				            }, true);
+				            media.addEventListener('canplay', function(e){
+				            	if (!paused) {
+					            	this.play();
+					            }
+				            }, true);
 						}
 					});
 
 			// add to list
-			for (i in media.children) {
-				src = media.children[i];
+			for (var i in media.children) {
+				var src = media.children[i];
 				if (src.nodeName === 'SOURCE' && (media.canPlayType(src.type) == 'probably' || media.canPlayType(src.type) == 'maybe')) {
 					player.addSourceButton(src.src, src.title, src.type, media.src == src.src);
 				}
