@@ -187,7 +187,7 @@
                     console.error("smfplayer hasn't been initalised");
                     return -1;
                 }
-            }; //in miliseconds
+            }; //in milliseconds
             this.setPosition = function (position) {
 
                 var player = $(this).data('smfplayer').smfplayer;
@@ -206,11 +206,11 @@
                     console.error("smfplayer hasn't been initalised");
 
 
-            }; //in miliseconds
+            }; //in milliseconds
             this.getDuration = function () { //in milliseconds
                 var player = $(this).data('smfplayer').smfplayer;
                 if (player !== undefined)
-                    return player.duration * 1000;
+                    return player.media.duration * 1000;
                 else {
                     console.error("smfplayer hasn't been initalised");
                     return -1;
